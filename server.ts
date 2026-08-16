@@ -274,17 +274,42 @@ Rules:
       }
     }
 
-    // Dynamic heuristic response fallback
+    // Dynamic heuristic response fallback if Gemini is offline or not configured
     const lower = message.toLowerCase();
-    let reply = `I have reviewed your inquiry and concluded that it can be best resolved with one crunchy snack.`;
-    if (lower.includes("slipper") || lower.includes("sock") || lower.includes("eat") || lower.includes("chew")) {
-      reply = `I reject the accusation! Those were clearly left unattended for official canine quality-assurance testing.`;
-    } else if (lower.includes("love") || lower.includes("good boy") || lower.includes("good girl") || lower.includes("best")) {
-      reply = `I love you more than all the tennis balls in the universe! (And that is a scientifically proven fact).`;
-    } else if (lower.includes("walk") || lower.includes("outside") || lower.includes("park")) {
-      reply = `DID SOMEONE SAY WALK?! I am already at the door in spirit and waiting for my leash!`;
-    } else if (lower.includes("why") || lower.includes("bark")) {
-      reply = `The leaf outside looked at our window with suspicious intentions. I was merely defending our kingdom.`;
+    const dogName = dog.name || "Your Dog";
+    const trait = dog.personality?.signatureTrait || "Chief Snack Inspector";
+    let reply = `*tail wag* I am listening with both ears perked! But I must ask: are there any belly rubs involved?`;
+
+    if (lower.includes("slipper") || lower.includes("sock") || lower.includes("eat") || lower.includes("chew") || lower.includes("steal")) {
+      reply = `I reject the accusation! Those were clearly left unattended for official canine quality-assurance testing. You are welcome!`;
+    } else if (lower.includes("love") || lower.includes("good boy") || lower.includes("good girl") || lower.includes("best") || lower.includes("who is")) {
+      reply = `I have reviewed the global rankings and can confirm with 100% statistical accuracy: YES, IT IS ME! I love you more than all the tennis balls in the universe!`;
+    } else if (lower.includes("walk") || lower.includes("outside") || lower.includes("park") || lower.includes("leash")) {
+      reply = `DID SOMEONE SAY WALK?! I am already doing 360-degree zoomies by the door! Grab the leash, human!`;
+    } else if (lower.includes("why") || lower.includes("bark") || lower.includes("mail") || lower.includes("door")) {
+      reply = `The leaf outside looked at our window with deeply suspicious intentions. I was merely defending our kingdom from unauthorized foliage!`;
+    } else if (lower.includes("work") || lower.includes("leave") || lower.includes("alone") || lower.includes("miss")) {
+      reply = `First, I sit dramatically by the window looking like a Victorian novel hero. Then I nap in 4 strategic sunbeams until that glorious front door clicks open!`;
+    } else if (lower.includes("dream") || lower.includes("twitch") || lower.includes("sleep") || lower.includes("paws")) {
+      reply = `I was in a magical kingdom where all the trees grow roasted chicken and tennis balls bounce in slow motion! My twitching paws were catching them!`;
+    } else if (lower.includes("hey") || lower.includes("hi") || lower.includes("hello") || lower.includes("sup")) {
+      reply = `Hey my favorite human! I was just sitting here thinking about how great you are (and wondering if you brought cheese).`;
+    } else if (lower.includes("food") || lower.includes("snack") || lower.includes("treat") || lower.includes("hungry")) {
+      reply = `I am experiencing a severe, life-threatening snack deficiency! Please deposit one crunchy biscuit immediately!`;
+    } else {
+      const generalVariations = [
+        `As your certified ${trait}, I have evaluated your question and determined that the answer requires immediate mutual ear-scratching!`,
+        `*tilts head quizzically* That is a profound human inquiry. In canine terms: life is best when you love deeply and never pass up an open sunbeam.`,
+        `Whatever you are planning, human, I am on your team 100%! Where you go, my happy paws follow.`,
+        `*gives enthusiastic nose boop* I agree with whatever you just said, provided it includes dinner or a car ride!`,
+        `My canine intuition tells me today is a 12 out of 10 because we get to hang out together!`
+      ];
+      let hash = 0;
+      for (let i = 0; i < message.length; i++) {
+        hash = (hash << 5) - hash + message.charCodeAt(i);
+        hash |= 0;
+      }
+      reply = generalVariations[Math.abs(hash) % generalVariations.length];
     }
 
     return res.json({ reply });

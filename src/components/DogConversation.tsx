@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Send, Volume2, Sparkles, BookOpen, VolumeX, MessageSquareQuote, ArrowRight, RotateCcw } from 'lucide-react';
 import { DogProfile, ChatMessage } from '../types';
 import { sound } from '../utils/audio';
+import { generateCanineResponse } from '../utils/conversationEngine';
 
 interface DogConversationProps {
   profile: DogProfile;
@@ -107,18 +108,35 @@ export const DogConversation: React.FC<DogConversationProps> = ({
     setDogReaction('listening');
 
     try {
-      const response = await fetch('/api/conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      let reply = '';
+      try {
+        const response = await fetch('/api/conversation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dog: profile,
+            message: messageText,
+            history: messages,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.reply) {
+            reply = data.reply;
+          }
+        }
+      } catch (netErr) {
+        console.warn('Backend API unavailable, using client canine response engine:', netErr);
+      }
+
+      if (!reply) {
+        reply = generateCanineResponse({
           dog: profile,
           message: messageText,
           history: messages,
-        }),
-      });
-
-      const data = await response.json();
-      const reply = data.reply || `I have consulted my paws and concluded that you are the best human. Also, snacks please?`;
+        });
+      }
 
       const dogMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
@@ -137,17 +155,23 @@ export const DogConversation: React.FC<DogConversationProps> = ({
       }, 300);
     } catch (err) {
       console.error('Conversation error:', err);
+      const fallbackReply = generateCanineResponse({
+        dog: profile,
+        message: messageText,
+        history: messages,
+      });
       setIsThinking(false);
-      setDogReaction('idle');
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `msg-${Date.now() + 1}`,
-          role: 'dog',
-          content: `*tail wag* I got distracted by a butterfly outside the window! Could you ask me that again?`,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
+      setDogReaction('happy');
+      const fallbackMsg: ChatMessage = {
+        id: `msg-${Date.now() + 1}`,
+        role: 'dog',
+        content: fallbackReply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, fallbackMsg]);
+      setTimeout(() => {
+        handleSpeakMessage(fallbackMsg);
+      }, 300);
     }
   };
 
