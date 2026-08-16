@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, Sparkles, RotateCcw, Award } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, RotateCcw, Award, Video } from 'lucide-react';
 import { ExperienceStep } from '../types';
 import { sound } from '../utils/audio';
 
@@ -7,6 +7,7 @@ interface NavigationProps {
   currentStep: ExperienceStep;
   onNavigate: (step: ExperienceStep) => void;
   onOpenKingdomStats: () => void;
+  onOpenVideoStudio?: () => void;
   dogName?: string;
   isMuted: boolean;
   onToggleMute: () => void;
@@ -17,6 +18,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   currentStep,
   onNavigate,
   onOpenKingdomStats,
+  onOpenVideoStudio,
   dogName,
   isMuted,
   onToggleMute,
@@ -112,6 +114,22 @@ export const Navigation: React.FC<NavigationProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
+          {/* Demo Video Studio */}
+          {onOpenVideoStudio && (
+            <button
+              onClick={() => {
+                sound.playChime('pop');
+                onOpenVideoStudio();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1b382b] bg-[#fef3c7] hover:bg-[#fde68a] border border-[#f59e0b]/40 rounded-full transition-colors shadow-xs"
+              title="Interactive Video Demo & Presentation Studio"
+              id="nav-video-studio-btn"
+            >
+              <Video className="w-3.5 h-3.5 text-[#d97706]" />
+              <span className="hidden sm:inline">Demo Video</span>
+            </button>
+          )}
+
           {/* Dog Kingdom Insights */}
           <button
             onClick={() => {

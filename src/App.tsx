@@ -23,6 +23,7 @@ import { DogStoryView } from './components/DogStoryView';
 import { KeepsakeCard } from './components/KeepsakeCard';
 import { SolanaPreservationModal } from './components/SolanaPreservationModal';
 import { DogKingdomModal } from './components/DogKingdomModal';
+import { VideoDemoStudio } from './components/VideoDemoStudio';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<ExperienceStep>('landing');
@@ -48,6 +49,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [isKingdomStatsOpen, setIsKingdomStatsOpen] = useState(false);
   const [isSolanaModalOpen, setIsSolanaModalOpen] = useState(false);
+  const [isVideoStudioOpen, setIsVideoStudioOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
 
@@ -250,6 +252,7 @@ export default function App() {
         currentStep={currentStep}
         onNavigate={(step) => setCurrentStep(step)}
         onOpenKingdomStats={() => setIsKingdomStatsOpen(true)}
+        onOpenVideoStudio={() => setIsVideoStudioOpen(true)}
         dogName={profile?.name || dogName}
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
@@ -271,6 +274,7 @@ export default function App() {
                 onStart={() => setCurrentStep('upload')}
                 onSelectPreset={handleSelectPreset}
                 onOpenKingdomStats={() => setIsKingdomStatsOpen(true)}
+                onOpenVideoStudio={() => setIsVideoStudioOpen(true)}
               />
             </motion.div>
           )}
@@ -446,6 +450,11 @@ export default function App() {
           keepsake={keepsake}
           onPreserved={handlePreservedOnSolana}
         />
+      )}
+
+      {/* Interactive Video Demo Studio & Recorder Modal */}
+      {isVideoStudioOpen && (
+        <VideoDemoStudio onClose={() => setIsVideoStudioOpen(false)} />
       )}
     </div>
   );

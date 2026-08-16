@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, ArrowRight, Heart, Volume2, ShieldCheck, BookOpen, Compass, ChevronRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Heart, Volume2, ShieldCheck, BookOpen, Compass, ChevronRight, Download, Image as ImageIcon, Video } from 'lucide-react';
 import { PRESET_DOGS, PresetDog } from '../data/presets';
 import { sound } from '../utils/audio';
+import { generateDevToCoverImage } from '../utils/bannerExport';
 
 interface LandingPageProps {
   onStart: () => void;
   onSelectPreset: (preset: PresetDog) => void;
   onOpenKingdomStats: () => void;
+  onOpenVideoStudio?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onStart,
   onSelectPreset,
   onOpenKingdomStats,
+  onOpenVideoStudio,
 }) => {
   const [isWagging, setIsWagging] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'how-it-works'>('overview');
@@ -313,12 +316,35 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span>—</span>
             <span>Crafted for International Dog Day 2026</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Google AI</span>
-            <span>•</span>
-            <span>ElevenLabs</span>
-            <span>•</span>
-            <span>Solana</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px]">
+            {onOpenVideoStudio && (
+              <button
+                onClick={() => {
+                  sound.playChime('pop');
+                  onOpenVideoStudio();
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] text-[#1b382b] hover:bg-[#fde68a] border border-[#f59e0b]/40 rounded-full font-medium transition-colors cursor-pointer shadow-xs"
+                title="Launch Interactive Video Demo & Presentation Studio"
+                id="launch-video-studio-footer-btn"
+              >
+                <Video className="w-3.5 h-3.5 text-[#d97706]" />
+                <span>Video Demo Studio</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                sound.playChime('sparkle');
+                generateDevToCoverImage();
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1b382b] text-[#faf6ee] hover:bg-[#254d3c] rounded-full font-medium transition-colors cursor-pointer shadow-xs"
+              title="Download 16:9 high-resolution cover image for DEV.to submission"
+              id="download-cover-image-btn"
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-[#e5a93c]" />
+              <span>Download Cover Banner (16:9)</span>
+            </button>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">Google AI + ElevenLabs + Solana</span>
           </div>
         </div>
       </footer>
