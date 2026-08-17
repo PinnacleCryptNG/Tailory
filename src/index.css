@@ -35,3 +35,53 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #b5a995;
 }
+
+/* Dark Mode - Midnight Forest & Warm Amber Palette */
+.dark body {
+  background-color: #0f1c16;
+  color: #f3eee3;
+}
+
+.dark .storybook-bg {
+  background-color: #0d1913;
+  background-image: radial-gradient(#1f3a2c 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark header {
+  background-color: rgba(13, 25, 19, 0.92) !important;
+  border-color: rgba(45, 89, 69, 0.6) !important;
+}
+
+.dark nav {
+  background-color: rgba(23, 44, 34, 0.8) !important;
+  border-color: rgba(45, 89, 69, 0.6) !important;
+}
+
+.dark .text-\[\#1b382b\] {
+  color: #f5eedf !important;
+}
+
+.dark .text-\[\#2c251d\] {
+  color: #ede5d8 !important;
+}
+
+.dark .text-\[\#332b20\] {
+  color: #e6ded2 !important;
+}
+
+.dark .bg-\[\#fffdf9\],
+.dark .bg-\[\#fffdfa\],
+.dark .bg-white {
+  background-color: #172b22 !important;
+  color: #f3eee3 !important;
+}
+
+.dark .bg-\[\#f0e7d5\] {
+  background-color: #1e362b !important;
+}
+
+.dark .bg-\[\#eef5f0\] {
+  background-color: #193828 !important;
+  color: #a7f3d0 !important;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   DogAnswers,
@@ -36,6 +36,7 @@ export default function App() {
     socialStyle: '',
     secret: '',
   });
+
   const [profile, setProfile] = useState<DogProfile | null>(null);
   const [memories, setMemories] = useState<DogMemories>({
     meeting: '',
@@ -43,6 +44,7 @@ export default function App() {
     funny: '',
     message: '',
   });
+
   const [story, setStory] = useState<DogStory | null>(null);
   const [keepsake, setKeepsake] = useState<DogDayKeepsake | null>(null);
 
@@ -52,6 +54,77 @@ export default function App() {
   const [isVideoStudioOpen, setIsVideoStudioOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGeneratingStory, setIsGeneratingStory] = useState(false);
+
+  // Dark mode state & persistence
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tailory_theme') === 'dark';
+    }
+    return false;
+  });
+
+  // Sync dark mode with the document and persist preference
+  useEffect(() => {
+    const root = document.documentElement;
+
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('tailory_theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('tailory_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const handleToggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
+  // Back navigation through the workflow hierarchy
+  const handleGoBack = () => {
+    sound.playChime('pop');
+
+    switch (currentStep) {
+      case 'upload':
+        setCurrentStep('landing');
+        break;
+
+      case 'questions':
+        setCurrentStep('upload');
+        break;
+
+      case 'analyzing':
+        setCurrentStep('questions');
+        break;
+
+      case 'profile':
+        setCurrentStep('questions');
+        break;
+
+      case 'conversation':
+        setCurrentStep('profile');
+        break;
+
+      case 'memories':
+        setCurrentStep('profile');
+        break;
+
+      case 'generating-story':
+        setCurrentStep('memories');
+        break;
+
+      case 'story':
+        setCurrentStep('memories');
+        break;
+
+      case 'keepsake':
+        setCurrentStep('story');
+        break;
+
+      default:
+        setCurrentStep('landing');
+    }
+  };
 
   const handleToggleMute = () => {
     const nextMuted = !isMuted;
@@ -107,8 +180,10 @@ export default function App() {
       });
 
       const data = await res.json();
+
       if (data.success && data.dog) {
         setProfile(data.dog);
+
         setTimeout(() => {
           setIsAnalyzing(false);
           setCurrentStep('profile');
@@ -119,15 +194,21 @@ export default function App() {
       }
     } catch (err) {
       console.error('Analysis error:', err);
-      // Construct fallback profile
+
       const fallbackDog: DogProfile = {
         id: `dog-${Date.now()}`,
         name: dogName,
         image: dogImage,
         personality: {
-          traits: ['Affectionate', 'Curious', 'Mischievous', 'Food-motivated'],
+          traits: [
+            'Affectionate',
+            'Curious',
+            'Mischievous',
+            'Food-motivated',
+          ],
           energy: answers.energy || 'Always ready for an adventure',
-          socialStyle: answers.socialStyle || 'Thinks everyone is their best friend',
+          socialStyle:
+            answers.socialStyle || 'Thinks everyone is their best friend',
           signatureTrait: 'Executive Snack Strategist',
         },
         funnyDescription: `${dogName} has mastered the art of looking deeply innocent two seconds after committing the most audacious living-room crimes.`,
@@ -136,13 +217,16 @@ export default function App() {
           confidence: 'Supreme',
           humour: 'Sweetly cheeky',
         },
-        storySeed: `A devoted companion whose tail never lies and whose heart is twice as big as their appetite.`,
-        greetingMessage: `Hey! I knew you were coming! I was just keeping the sofa warm for us.`,
+        storySeed:
+          'A devoted companion whose tail never lies and whose heart is twice as big as their appetite.',
+        greetingMessage:
+          'Hey! I knew you were coming! I was just keeping the sofa warm for us.',
         ownerSecret: answers.secret,
         createdAt: new Date().toISOString(),
       };
 
       setProfile(fallbackDog);
+
       setTimeout(() => {
         setIsAnalyzing(false);
         setCurrentStep('profile');
@@ -154,6 +238,7 @@ export default function App() {
   // 2. Generate Story via Google AI
   const handleGenerateStory = async () => {
     if (!profile) return;
+
     setIsGeneratingStory(true);
     setCurrentStep('generating-story');
 
@@ -168,10 +253,18 @@ export default function App() {
       });
 
       const data = await res.json();
+
       if (data.success && data.story) {
         setStory(data.story);
-        const randId = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const memoryId = `DOGDAY-2026-${profile.name.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${randId}`;
+
+        const randId = Math.random()
+          .toString(36)
+          .substring(2, 6)
+          .toUpperCase();
+
+        const memoryId = `DOGDAY-2026-${profile.name
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, '')}-${randId}`;
 
         const newKeepsake: DogDayKeepsake = {
           id: `keepsake-${Date.now()}`,
@@ -180,14 +273,19 @@ export default function App() {
           dogImage: profile.image,
           signatureTrait: profile.personality.signatureTrait,
           tagline: `${profile.personality.signatureTrait} • Full-Time Good Dog`,
-          memorableLine: data.story.pullQuote || 'Somehow, ordinary days became my favourite days.',
-          ownerMessage: data.story.closing || `To ${profile.name}: Thank you for being my best friend.`,
+          memorableLine:
+            data.story.pullQuote ||
+            'Somehow, ordinary days became my favourite days.',
+          ownerMessage:
+            data.story.closing ||
+            `To ${profile.name}: Thank you for being my best friend.`,
           traits: profile.personality.traits,
           createdDate: '26 August 2026',
           occasion: 'International Dog Day — August 26, 2026',
         };
 
         setKeepsake(newKeepsake);
+
         setTimeout(() => {
           setIsGeneratingStory(false);
           setCurrentStep('story');
@@ -198,21 +296,33 @@ export default function App() {
       }
     } catch (err) {
       console.error('Story generation error:', err);
+
       const fallbackStory: DogStory = {
         title: `${profile.name} and the Ordinary Miracles`,
-        subtitle: `A celebration of muddy paws, quiet mornings, and an unbreakable bond.`,
+        subtitle:
+          'A celebration of muddy paws, quiet mornings, and an unbreakable bond.',
         paragraphs: [
           `Every great friendship has a quiet beginning. When ${profile.name} first arrived into the world of their human, ${memories.meeting || 'an ordinary day instantly turned extraordinary'}. There was no grand ceremony—just a moment where two lives locked into sync, and the air in the house suddenly felt warmer.`,
           `Over the seasons, ${profile.name} grew into a creature of delightful habits and legendary charm. There was the side of them that brought endless laughter—${memories.funny || 'the little victory dance before dinner'}. But beyond the daily comedy, there were the moments etched deep into memory: ${memories.favourite || 'the quiet afternoons in the autumn breeze'}. In those quiet spaces between sunset and sunrise, companionship wasn't a concept; it was a warm presence resting faithfully near the door.`,
           `If dogs carry an unspoken wisdom, it is the simple truth that presence is the greatest gift of all. ${profile.name} never needed words to say what mattered; every wag, head tilt, and joyful greeting spoke the language of unconditional loyalty.`,
         ],
-        pullQuote: `Somehow, through muddy paws and quiet evenings, ordinary days became my favourite days.`,
-        closing: `To ${profile.name}: ${memories.message || 'You made our house a home.'}`,
+        pullQuote:
+          'Somehow, through muddy paws and quiet evenings, ordinary days became my favourite days.',
+        closing: `To ${profile.name}: ${
+          memories.message || 'You made our house a home.'
+        }`,
       };
 
       setStory(fallbackStory);
-      const randId = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const memoryId = `DOGDAY-2026-${profile.name.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${randId}`;
+
+      const randId = Math.random()
+        .toString(36)
+        .substring(2, 6)
+        .toUpperCase();
+
+      const memoryId = `DOGDAY-2026-${profile.name
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '')}-${randId}`;
 
       setKeepsake({
         id: `keepsake-${Date.now()}`,
@@ -236,7 +346,9 @@ export default function App() {
     }
   };
 
-  const handlePreservedOnSolana = (preservation: BlockchainPreservation) => {
+  const handlePreservedOnSolana = (
+    preservation: BlockchainPreservation
+  ) => {
     if (keepsake) {
       setKeepsake({
         ...keepsake,
@@ -257,6 +369,9 @@ export default function App() {
         isMuted={isMuted}
         onToggleMute={handleToggleMute}
         onReset={handleReset}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+        onBack={handleGoBack}
       />
 
       {/* Main View Area */}
@@ -273,8 +388,12 @@ export default function App() {
               <LandingPage
                 onStart={() => setCurrentStep('upload')}
                 onSelectPreset={handleSelectPreset}
-                onOpenKingdomStats={() => setIsKingdomStatsOpen(true)}
-                onOpenVideoStudio={() => setIsVideoStudioOpen(true)}
+                onOpenKingdomStats={() =>
+                  setIsKingdomStatsOpen(true)
+                }
+                onOpenVideoStudio={() =>
+                  setIsVideoStudioOpen(true)
+                }
               />
             </motion.div>
           )}
@@ -325,7 +444,10 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <AIAnalyzing dogName={dogName} dogImage={dogImage} />
+              <AIAnalyzing
+                dogName={dogName}
+                dogImage={dogImage}
+              />
             </motion.div>
           )}
 
@@ -390,11 +512,14 @@ export default function App() {
               <div className="w-16 h-16 rounded-full bg-[#1b382b] text-[#f59e0b] flex items-center justify-center text-2xl animate-spin mb-4">
                 📖
               </div>
+
               <h2 className="font-display font-bold text-2xl text-[#1b382b] mb-1">
                 Gathering the good bits…
               </h2>
+
               <p className="text-sm text-[#736858] max-w-sm">
-                Google AI is weaving your memories of {profile?.name || dogName} into a Dog Day story.
+                Google AI is weaving your memories of{' '}
+                {profile?.name || dogName} into a Dog Day story.
               </p>
             </motion.div>
           )}
@@ -410,27 +535,34 @@ export default function App() {
               <DogStoryView
                 profile={profile}
                 story={story}
-                onProceedToKeepsake={() => setCurrentStep('keepsake')}
+                onProceedToKeepsake={() =>
+                  setCurrentStep('keepsake')
+                }
               />
             </motion.div>
           )}
 
-          {currentStep === 'keepsake' && profile && story && keepsake && (
-            <motion.div
-              key="keepsake"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.3 }}
-            >
-              <KeepsakeCard
-                profile={profile}
-                story={story}
-                keepsake={keepsake}
-                onOpenSolanaPreservation={() => setIsSolanaModalOpen(true)}
-              />
-            </motion.div>
-          )}
+          {currentStep === 'keepsake' &&
+            profile &&
+            story &&
+            keepsake && (
+              <motion.div
+                key="keepsake"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.3 }}
+              >
+                <KeepsakeCard
+                  profile={profile}
+                  story={story}
+                  keepsake={keepsake}
+                  onOpenSolanaPreservation={() =>
+                    setIsSolanaModalOpen(true)
+                  }
+                />
+              </motion.div>
+            )}
         </AnimatePresence>
       </main>
 
@@ -454,7 +586,9 @@ export default function App() {
 
       {/* Interactive Video Demo Studio & Recorder Modal */}
       {isVideoStudioOpen && (
-        <VideoDemoStudio onClose={() => setIsVideoStudioOpen(false)} />
+        <VideoDemoStudio
+          onClose={() => setIsVideoStudioOpen(false)}
+        />
       )}
     </div>
   );

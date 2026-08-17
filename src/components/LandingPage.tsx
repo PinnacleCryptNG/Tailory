@@ -62,12 +62,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               sound.playChime('sparkle');
               onOpenKingdomStats();
             }}
-            className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e8f3ec] border border-[#bedecb] text-[#1b382b] text-xs sm:text-sm font-medium shadow-xs hover:bg-[#d8ecdf] transition-all cursor-pointer"
-            id="landing-occasion-pill"
+           className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e8f3ec] dark:bg-[#193828] border border-[#bedecb] dark:border-[#2d5945] text-[#1b382b] dark:text-[#f3eee3] text-xs sm:text-sm font-medium shadow-xs hover:bg-[#d8ecdf] dark:hover:bg-[#254d3c] transition-all cursor-pointer"
+           id="landing-occasion-pill"
           >
             <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
             <span>International Dog Day — August 26, 2026</span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#6b7280] group-hover:translate-x-0.5 transition-transform" />
+           <ChevronRight className="w-3.5 h-3.5 text-[#5c5244] dark:text-[#f3eee3] group-hover:translate-x-0.5 transition-transform" />
           </motion.button>
         </div>
 

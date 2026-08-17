@@ -1,5 +1,14 @@
 import React from 'react';
-import { Volume2, VolumeX, Sparkles, RotateCcw, Award, Video } from 'lucide-react';
+import {
+  Volume2,
+  VolumeX,
+  Sparkles,
+  RotateCcw,
+  Video,
+  ArrowLeft,
+  Sun,
+  Moon,
+} from 'lucide-react';
 import { ExperienceStep } from '../types';
 import { sound } from '../utils/audio';
 
@@ -12,6 +21,11 @@ interface NavigationProps {
   isMuted: boolean;
   onToggleMute: () => void;
   onReset: () => void;
+
+  // Dark mode & back navigation
+  isDarkMode: boolean;
+  onToggleDarkMode: () => void;
+  onBack: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -23,6 +37,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   isMuted,
   onToggleMute,
   onReset,
+  isDarkMode,
+  onToggleDarkMode,
+  onBack,
 }) => {
   const steps: { id: ExperienceStep; label: string }[] = [
     { id: 'landing', label: 'Home' },
@@ -35,53 +52,84 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const getStepIndex = (step: ExperienceStep) => {
     switch (step) {
-      case 'landing': return 0;
+      case 'landing':
+        return 0;
       case 'upload':
       case 'questions':
-      case 'analyzing': return 1;
-      case 'profile': return 2;
-      case 'conversation': return 3;
+      case 'analyzing':
+        return 1;
+      case 'profile':
+        return 2;
+      case 'conversation':
+        return 3;
       case 'memories':
       case 'generating-story':
-      case 'story': return 4;
+      case 'story':
+        return 4;
       case 'keepsake':
-      case 'preserved': return 5;
-      default: return 0;
+      case 'preserved':
+        return 5;
+      default:
+        return 0;
     }
   };
 
   const activeIndex = getStepIndex(currentStep);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#faf6ee]/90 backdrop-blur-md border-b border-[#e7decb]/80 px-4 sm:px-6 py-3.5 transition-all">
+    <header className="sticky top-0 z-40 bg-[#faf6ee]/90 dark:bg-[#0d1913]/92 backdrop-blur-md border-b border-[#e7decb]/80 dark:border-[#2d5945]/60 px-4 sm:px-6 py-3.5 transition-all">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-        {/* Brand Logo & Tag */}
-        <button
-          onClick={() => onNavigate('landing')}
-          className="flex items-center gap-2.5 text-left group focus:outline-none"
-          id="nav-logo-btn"
-        >
-          <div className="w-9 h-9 rounded-xl bg-[#1b382b] text-[#faf6ee] flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-[#254d3c] transition-colors">
-            🐾
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-xl text-[#1b382b] tracking-tight">
-                TAILORY
-              </span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#e5a93c]/15 text-[#92400e] border border-[#e5a93c]/30">
-                Dog Day ’26
-              </span>
-            </div>
-            <p className="text-[11px] text-[#635a4d] -mt-0.5 hidden xs:block">
-              Every dog has a story.
-            </p>
-          </div>
-        </button>
 
-        {/* Step Progress Tracker (Visible if past landing) */}
+        {/* Brand Logo & Back Button */}
+        <div className="flex items-center gap-2.5 min-w-0">
+
+          {/* Back Button */}
+          {currentStep !== 'landing' && (
+            <button
+              onClick={() => {
+                sound.playChime('pop');
+                onBack();
+              }}
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-[#1b382b] dark:text-[#f3eee3] bg-[#f0e7d5]/90 dark:bg-[#1a3326] hover:bg-[#e4d8c2] dark:hover:bg-[#254d3c] border border-[#d8ccb6] dark:border-[#2d5945] transition-all cursor-pointer shadow-xs shrink-0"
+              title="Go back"
+              aria-label="Go back"
+              id="nav-back-btn"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#1b382b] dark:text-[#f59e0b] stroke-[2.2]" />
+            </button>
+          )}
+
+          {/* Logo */}
+          <button
+            onClick={() => onNavigate('landing')}
+            className="flex items-center gap-2.5 text-left group focus:outline-none"
+            id="nav-logo-btn"
+          >
+            <div className="w-9 h-9 rounded-xl bg-[#1b382b] text-[#faf6ee] flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-[#254d3c] transition-colors">
+              🐾
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-xl text-[#1b382b] dark:text-[#f3eee3] tracking-tight">
+                  TAILORY
+                </span>
+
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#e5a93c]/15 text-[#92400e] dark:text-[#f59e0b] border border-[#e5a93c]/30">
+                  Dog Day ’26
+                </span>
+              </div>
+
+              <p className="text-[11px] text-[#635a4d] dark:text-[#b8b0a2] -mt-0.5 hidden xs:block">
+                Every dog has a story.
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* Step Progress Tracker */}
         {currentStep !== 'landing' && (
-          <nav className="hidden md:flex items-center gap-1.5 bg-[#f0e7d5]/60 p-1 rounded-full border border-[#e2d6bf]">
+          <nav className="hidden md:flex items-center gap-1.5 bg-[#f0e7d5]/60 dark:bg-[#172c22]/80 p-1 rounded-full border border-[#e2d6bf] dark:border-[#2d5945]/60">
             {steps.slice(1).map((s, idx) => {
               const stepIdx = idx + 1;
               const isPast = activeIndex > stepIdx;
@@ -99,13 +147,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                     isCurrent
                       ? 'bg-[#1b382b] text-[#faf6ee] shadow-xs'
                       : isPast
-                      ? 'text-[#1b382b] hover:bg-[#e4d8c2] cursor-pointer'
+                      ? 'text-[#1b382b] dark:text-[#f3eee3] hover:bg-[#e4d8c2] dark:hover:bg-[#254d3c] cursor-pointer'
                       : 'text-[#9c907e] cursor-not-allowed opacity-60'
                   }`}
                   id={`nav-step-${s.id}`}
                 >
                   {s.label}
-                  {isCurrent && dogName && s.id !== 'upload' && ` (${dogName})`}
+                  {isCurrent &&
+                    dogName &&
+                    s.id !== 'upload' &&
+                    ` (${dogName})`}
                 </button>
               );
             })}
@@ -114,6 +165,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
+
           {/* Demo Video Studio */}
           {onOpenVideoStudio && (
             <button
@@ -121,7 +173,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 sound.playChime('pop');
                 onOpenVideoStudio();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1b382b] bg-[#fef3c7] hover:bg-[#fde68a] border border-[#f59e0b]/40 rounded-full transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1b382b] dark:text-[#f3eee3] bg-[#fef3c7] dark:bg-[#332a18] hover:bg-[#fde68a] dark:hover:bg-[#44371d] border border-[#f59e0b]/40 rounded-full transition-colors shadow-xs"
               title="Interactive Video Demo & Presentation Studio"
               id="nav-video-studio-btn"
             >
@@ -136,7 +188,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               sound.playChime('pop');
               onOpenKingdomStats();
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1b382b] bg-[#eef5f0] hover:bg-[#dfeee3] border border-[#c4ded0] rounded-full transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1b382b] dark:text-[#a7f3d0] bg-[#eef5f0] dark:bg-[#193828] hover:bg-[#dfeee3] dark:hover:bg-[#244b39] border border-[#c4ded0] dark:border-[#2d5945] rounded-full transition-colors"
             title="Dog Kingdom Community Insights"
             id="nav-kingdom-stats-btn"
           >
@@ -144,14 +196,36 @@ export const Navigation: React.FC<NavigationProps> = ({
             <span className="hidden sm:inline">Dog Kingdom</span>
           </button>
 
+          {/* Dark / Light Mode Toggle */}
+          <button
+            onClick={() => {
+              sound.playChime('pop');
+              onToggleDarkMode();
+            }}
+            className="p-2 text-[#5c5244] dark:text-[#fef3c7] hover:text-[#1b382b] dark:hover:text-white hover:bg-[#f0e7d5] dark:hover:bg-[#203f30] rounded-full transition-colors cursor-pointer"
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            id="nav-theme-toggle-btn"
+          >
+            {isDarkMode ? (
+              <Sun className="w-4 h-4 text-[#f59e0b]" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#1b382b] dark:text-[#f3eee3]" />
+            )}
+          </button>
+
           {/* Sound Mute Toggle */}
           <button
             onClick={onToggleMute}
-            className="p-2 text-[#5c5244] hover:text-[#1b382b] hover:bg-[#f0e7d5] rounded-full transition-colors"
+            className="p-2 text-[#5c5244] dark:text-[#d8d0c3] hover:text-[#1b382b] dark:hover:text-white hover:bg-[#f0e7d5] dark:hover:bg-[#203f30] rounded-full transition-colors"
             title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
             id="nav-sound-toggle-btn"
           >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1b382b]" />}
+            {isMuted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-[#1b382b] dark:text-[#f3eee3]" />
+            )}
           </button>
 
           {/* Reset / Start New */}
@@ -162,7 +236,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   onReset();
                 }
               }}
-              className="p-2 text-[#8c7f6e] hover:text-[#991b1b] hover:bg-[#fee2e2]/60 rounded-full transition-colors"
+              className="p-2 text-[#8c7f6e] dark:text-[#b8b0a2] hover:text-[#991b1b] dark:hover:text-red-300 hover:bg-[#fee2e2]/60 dark:hover:bg-red-950/40 rounded-full transition-colors"
               title="Start New Dog Experience"
               id="nav-reset-btn"
             >
